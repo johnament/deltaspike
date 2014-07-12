@@ -61,7 +61,6 @@ public interface CdiContainer
      * This will shutdown the underlying CDI container and stop all contexts.
      */
     void shutdown();
-    
 
     /**
      * @return the {@link BeanManager} or <code>null</code> it not available
@@ -72,4 +71,9 @@ public interface CdiContainer
      * @return ContextControl for the started Container. <code>null</code> if the container is not yet started
      */
     ContextControl getContextControl();
+
+    /**
+     * @return creates a new ContextControl for use by consumers.
+     */
+    ContextControl createContextControl();
 }

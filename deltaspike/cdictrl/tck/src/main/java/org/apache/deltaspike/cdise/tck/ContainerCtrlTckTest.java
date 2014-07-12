@@ -27,6 +27,7 @@ import javax.enterprise.inject.spi.BeanManager;
 
 import org.apache.deltaspike.cdise.api.CdiContainer;
 import org.apache.deltaspike.cdise.api.CdiContainerLoader;
+import org.apache.deltaspike.cdise.api.ContextControl;
 import org.apache.deltaspike.cdise.tck.beans.Car;
 import org.apache.deltaspike.cdise.tck.beans.CarRepair;
 import org.apache.deltaspike.cdise.tck.beans.TestUser;
@@ -68,6 +69,19 @@ public class ContainerCtrlTckTest
         Assert.assertNotNull(carRepair.getCar());
         Assert.assertNotNull(carRepair.getCar().getUser());
 
+        cc.shutdown();
+    }
+
+    @Test
+    public void testControlResolution()
+    {
+        CdiContainer cc = CdiContainerLoader.getCdiContainer();
+        Assert.assertNotNull(cc);
+
+        cc.boot();
+        cc.getContextControl().startContexts();
+        ContextControl contextController = cc.createContextControl();
+        Assert.assertNotSame(contextController,cc.getContextControl());
         cc.shutdown();
     }
 

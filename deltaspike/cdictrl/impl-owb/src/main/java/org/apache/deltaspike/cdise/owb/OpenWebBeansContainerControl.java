@@ -101,8 +101,6 @@ public class OpenWebBeansContainerControl implements CdiContainer
     {
         if (ctxCtrl == null)
         {
-            Set<Bean<?>> beans = getBeanManager().getBeans(ContextControl.class);
-
             BeanManager beanManager = getBeanManager();
 
             if (beanManager == null)
@@ -115,11 +113,34 @@ public class OpenWebBeansContainerControl implements CdiContainer
                 return null;
             }
 
+            Set<Bean<?>> beans = beanManager.getBeans(ContextControl.class);
             ctxCtrlBean = (Bean<ContextControl>) beanManager.resolve(beans);
-            ctxCtrlCreationalContext = getBeanManager().createCreationalContext(ctxCtrlBean);
+            ctxCtrlCreationalContext = beanManager.createCreationalContext(ctxCtrlBean);
             ctxCtrl = (ContextControl)
-                    getBeanManager().getReference(ctxCtrlBean, ContextControl.class, ctxCtrlCreationalContext);
+                    beanManager.getReference(ctxCtrlBean, ContextControl.class, ctxCtrlCreationalContext);
         }
         return ctxCtrl;
+    }
+
+    @Override
+    public ContextControl createContextControl()
+    {
+        BeanManager beanManager = getBeanManager();
+
+        if (beanManager == null)
+        {
+            LOG.warning("If the CDI-container was started by the environment, you can't use this helper." +
+                    "Instead you can resolve ContextControl manually " +
+                    "(e.g. via BeanProvider.getContextualReference(ContextControl.class) ). " +
+                    "If the container wasn't started already, you have to use CdiContainer#boot before.");
+
+            return null;
+        }
+
+        Set<Bean<?>> beans = beanManager.getBeans(ContextControl.class);
+        Bean<ContextControl> ctxCtrlBean = (Bean<ContextControl>) beanManager.resolve(beans);
+        CreationalContext<ContextControl> ctxCtrlCreationalContext = beanManager.createCreationalContext(ctxCtrlBean);
+        return (ContextControl)
+                beanManager.getReference(ctxCtrlBean, ContextControl.class, ctxCtrlCreationalContext);
     }
 }

@@ -74,7 +74,7 @@ public class WeldContainerControl implements CdiContainer
     }
 
     @Override
-    public synchronized  void shutdown()
+    public synchronized void shutdown()
     {
         if (ctxCtrl != null)
         {
@@ -95,7 +95,6 @@ public class WeldContainerControl implements CdiContainer
         if (ctxCtrl == null)
         {
             BeanManager beanManager = getBeanManager();
-
             if (beanManager == null)
             {
                 LOG.warning("If the CDI-container was started by the environment, you can't use this helper." +
@@ -114,5 +113,27 @@ public class WeldContainerControl implements CdiContainer
                     getBeanManager().getReference(ctxCtrlBean, ContextControl.class, ctxCtrlCreationalContext);
         }
         return ctxCtrl;
+    }
+
+    public ContextControl createContextControl()
+    {
+        BeanManager beanManager = getBeanManager();
+        //the method here is duplicated... mostly because the above requires populating member variables.
+        if (beanManager == null)
+        {
+            LOG.warning("If the CDI-container was started by the environment, you can't use this helper." +
+                    "Instead you can resolve ContextControl manually " +
+                    "(e.g. via BeanProvider.getContextualReference(ContextControl.class) ). " +
+                    "If the container wasn't started already, you have to use CdiContainer#boot before.");
+
+            return null;
+        }
+        Set<Bean<?>> beans = beanManager.getBeans(ContextControl.class);
+        Bean<ContextControl> ctxCtrlBean = (Bean<ContextControl>) beanManager.resolve(beans);
+
+        CreationalContext<ContextControl> ctxCtrlCreationalContext = beanManager.createCreationalContext(ctxCtrlBean);
+
+        return (ContextControl)
+                getBeanManager().getReference(ctxCtrlBean, ContextControl.class, ctxCtrlCreationalContext);
     }
 }

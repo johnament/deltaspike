@@ -148,4 +148,14 @@ public class OpenEjbContainerControl implements CdiContainer
         }
         return ctxCtrl;
     }
+
+    @Override
+    public ContextControl createContextControl()
+    {
+        Set<Bean<?>> beans = getBeanManager().getBeans(ContextControl.class);
+        Bean<ContextControl> ctxCtrlBean = (Bean<ContextControl>) getBeanManager().resolve(beans);
+        CreationalContext<ContextControl> ctxCtrlCreationalContext = getBeanManager().createCreationalContext(ctxCtrlBean);
+        return (ContextControl)
+                getBeanManager().getReference(ctxCtrlBean, ContextControl.class, ctxCtrlCreationalContext);
+    }
 }

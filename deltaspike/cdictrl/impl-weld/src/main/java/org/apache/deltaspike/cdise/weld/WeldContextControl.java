@@ -163,6 +163,7 @@ public class WeldContextControl implements ContextControl
         catch (IllegalStateException ise)
         {
             // weld throws an ISE if the context was already started...
+            ise.printStackTrace();
         }
     }
 

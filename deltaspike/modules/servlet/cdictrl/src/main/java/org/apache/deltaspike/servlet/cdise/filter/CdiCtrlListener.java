@@ -22,9 +22,6 @@ import org.apache.deltaspike.cdise.api.CdiContainerLoader;
 import org.apache.deltaspike.cdise.api.ContextControl;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
 import javax.servlet.annotation.WebListener;
@@ -54,33 +51,10 @@ public class CdiCtrlListener implements ServletRequestListener
     public void requestInitialized(ServletRequestEvent servletRequestEvent)
     {
         System.out.println("Doing filter.");
-        ContextControl contextControl = getContextControl();
+        ContextControl contextControl = CdiContainerLoader.getCdiContainer().createContextControl();
+        //TODO replace with a loop, starting listed contexts.
         contextControl.startContext(RequestScoped.class);
         servletRequestEvent.getServletRequest().setAttribute("controller",contextControl);
-    }
-
-    private ContextControl getContextControl()
-    {
-        BeanManager beanManager = CdiContainerLoader.getCdiContainer().getBeanManager();
-
-        if (beanManager == null)
-        {
-            LOG.warning("If the CDI-container was started by the environment, you can't use this helper." +
-                    "Instead you can resolve ContextControl manually " +
-                    "(e.g. via BeanProvider.getContextualReference(ContextControl.class) ). " +
-                    "If the container wasn't started already, you have to use CdiContainer#boot before.");
-
-            return null;
-        }
-        Set<Bean<?>> beans = beanManager.getBeans(ContextControl.class);
-        Bean<ContextControl> ctxCtrlBean = (Bean<ContextControl>) beanManager.resolve(beans);
-
-        CreationalContext<ContextControl> ctxCtrlCreationalContext =
-                beanManager.createCreationalContext(ctxCtrlBean);
-
-        ContextControl ctxCtrl = (ContextControl)
-                beanManager.getReference(ctxCtrlBean, ContextControl.class, ctxCtrlCreationalContext);
-        return ctxCtrl;
     }
 
 }

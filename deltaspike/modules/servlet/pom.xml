@@ -36,6 +36,7 @@
     <modules>
         <module>api</module>
         <module>impl</module>
+        <module>cdictrl</module>
     </modules>
 
     <dependencyManagement>

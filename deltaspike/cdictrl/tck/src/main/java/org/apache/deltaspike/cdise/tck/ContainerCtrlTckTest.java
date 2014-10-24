@@ -92,7 +92,6 @@ public class ContainerCtrlTckTest
         Assert.assertNotNull(bm);
 
         final AtomicInteger numErrors = new AtomicInteger(0);
-        final ContextControl contextControl = cc.getContextControl();
 
         Runnable runnable = new Runnable()
         {
@@ -101,6 +100,7 @@ public class ContainerCtrlTckTest
             {
                 try
                 {
+                    ContextControl contextControl = cc.createContextControl();
                     contextControl.startContext(SessionScoped.class);
                     contextControl.startContext(RequestScoped.class);
 

@@ -45,4 +45,18 @@ public class OwbHelper
         return MockServletContext.getInstance();
     }
 
+
+    public static boolean isServletApiAvailable()
+    {
+        try
+        {
+            Class servletClass = Class.forName("javax.servlet.http.HttpSession");
+            return servletClass != null;
+        }
+        catch (ClassNotFoundException e)
+        {
+            return false;
+        }
+    }
+
 }

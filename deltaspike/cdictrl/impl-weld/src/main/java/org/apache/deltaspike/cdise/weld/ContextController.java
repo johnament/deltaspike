@@ -26,13 +26,12 @@ import org.jboss.weld.context.bound.BoundSessionContext;
 import org.jboss.weld.context.bound.MutableBoundRequest;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Instance;
+import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Weld specific controller for all supported context implementations
@@ -40,8 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Typed()
 public class ContextController
 {
-    private static ThreadLocal<RequestContextHolder> requestContexts = new ThreadLocal<RequestContextHolder>();
-
     @Inject
     private ApplicationContext applicationContext;
 
@@ -49,13 +46,14 @@ public class ContextController
     private BoundSessionContext sessionContext;
 
     @Inject
-    private Instance<BoundRequestContext> requestContextFactory;
+    private BoundRequestContext requestContext;
 
     @Inject
     private BoundConversationContext conversationContext;
+
     private Map<String, Object> sessionMap;
 
-    private AtomicInteger sessionRefCounter = new AtomicInteger(0);
+    private Map<String, Object> requestMap;
 
     private boolean singletonScopeStarted;
 
@@ -93,109 +91,71 @@ public class ContextController
         singletonScopeStarted = false;
     }
 
-    synchronized void startSessionScope()
+    void startSessionScope()
     {
         if (sessionMap == null)
         {
             sessionMap = new HashMap<String, Object>();
         }
+        else
+        {
+            throw new IllegalStateException(SessionScoped.class.getName() + " started already");
+        }
 
-        sessionRefCounter.incrementAndGet();
         sessionContext.associate(sessionMap);
         sessionContext.activate();
     }
 
-    synchronized void stopSessionScope()
+    void stopSessionScope()
     {
         if (sessionContext.isActive())
         {
             sessionContext.invalidate();
             sessionContext.deactivate();
             sessionContext.dissociate(sessionMap);
-            if (sessionRefCounter.decrementAndGet() <= 0)
-            {
-                sessionMap = null;
-            }
+            sessionMap = null;
         }
     }
 
-    synchronized void startConversationScope(String cid)
+    void startConversationScope(String cid)
     {
-        RequestContextHolder rcHolder = requestContexts.get();
-        if (rcHolder == null)
-        {
-            startRequestScope();
-            rcHolder = requestContexts.get();
-        }
-        conversationContext.associate(new MutableBoundRequest(rcHolder.requestMap, sessionMap));
+        conversationContext.associate(new MutableBoundRequest(requestMap, sessionMap));
         conversationContext.activate(cid);
     }
 
-    synchronized void stopConversationScope()
+    void stopConversationScope()
     {
-        RequestContextHolder rcHolder = requestContexts.get();
-        if (rcHolder == null)
-        {
-            startRequestScope();
-            rcHolder = requestContexts.get();
-        }
         if (conversationContext.isActive())
         {
             conversationContext.invalidate();
             conversationContext.deactivate();
-            conversationContext.dissociate(new MutableBoundRequest(rcHolder.getRequestMap(), sessionMap));
+            conversationContext.dissociate(new MutableBoundRequest(requestMap, sessionMap));
         }
     }
 
-    synchronized void startRequestScope()
+    void startRequestScope()
     {
-        RequestContextHolder rcHolder = requestContexts.get();
-        if (rcHolder == null)
+        if (requestMap == null)
         {
-            rcHolder = new RequestContextHolder(requestContextFactory.get(), new HashMap<String, Object>());
-            requestContexts.set(rcHolder);
+            requestMap = new HashMap<String, Object>();
         }
         else
         {
             throw new IllegalStateException(RequestScoped.class.getName() + " started already");
         }
 
-        rcHolder.getBoundRequestContext().associate(rcHolder.getRequestMap());
-        rcHolder.getBoundRequestContext().activate();
+        requestContext.associate(requestMap);
+        requestContext.activate();
     }
 
-    synchronized void stopRequestScope()
+    void stopRequestScope()
     {
-        RequestContextHolder rcHolder = requestContexts.get();
-        if (rcHolder != null && rcHolder.getBoundRequestContext().isActive())
+        if (requestContext.isActive())
         {
-            rcHolder.getBoundRequestContext().invalidate();
-            rcHolder.getBoundRequestContext().deactivate();
-            rcHolder.getBoundRequestContext().dissociate(rcHolder.getRequestMap());
-            requestContexts.set(null);
-            requestContexts.remove();
-        }
-    }
-
-    private static class RequestContextHolder
-    {
-        private final BoundRequestContext boundRequestContext;
-        private final Map<String, Object> requestMap;
-
-        private RequestContextHolder(BoundRequestContext boundRequestContext, Map<String, Object> requestMap)
-        {
-            this.boundRequestContext = boundRequestContext;
-            this.requestMap = requestMap;
-        }
-
-        public BoundRequestContext getBoundRequestContext()
-        {
-            return boundRequestContext;
-        }
-
-        public Map<String, Object> getRequestMap()
-        {
-            return requestMap;
+            requestContext.invalidate();
+            requestContext.deactivate();
+            requestContext.dissociate(requestMap);
+            requestMap = null;
         }
     }
 }

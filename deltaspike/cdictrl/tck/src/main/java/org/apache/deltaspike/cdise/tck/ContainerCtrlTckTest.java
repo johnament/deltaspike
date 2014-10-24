@@ -98,35 +98,35 @@ public class ContainerCtrlTckTest
             @Override
             public void run()
             {
+                ContextControl contextControl = cc.createContextControl();
+                contextControl.startContext(SessionScoped.class);
+                contextControl.startContext(RequestScoped.class);
+
+
+                Set<Bean<?>> beans = bm.getBeans(CarRepair.class);
+                Bean<?> bean = bm.resolve(beans);
+
+                CarRepair carRepair = (CarRepair)
+                        bm.getReference(bean, CarRepair.class, bm.createCreationalContext(bean));
+                Assert.assertNotNull(carRepair);
+
                 try
                 {
-                    ContextControl contextControl = cc.createContextControl();
-                    contextControl.startContext(SessionScoped.class);
-                    contextControl.startContext(RequestScoped.class);
-
-
-                    Set<Bean<?>> beans = bm.getBeans(CarRepair.class);
-                    Bean<?> bean = bm.resolve(beans);
-
-                    CarRepair carRepair = (CarRepair)
-                            bm.getReference(bean, CarRepair.class, bm.createCreationalContext(bean));
-                    Assert.assertNotNull(carRepair);
-
                     for (int i = 0; i < 100000; i++)
                     {
                         // we need the threads doing something ;)
                         Assert.assertNotNull(carRepair.getCar());
                         Assert.assertNotNull(carRepair.getCar().getUser());
-                        Assert.assertNull(carRepair.getCar().getUser().getName());
+                        Assert.assertNotNull(carRepair.getCar().getUser().getName());
                     }
-                    contextControl.stopContext(RequestScoped.class);
-                    contextControl.stopContext(SessionScoped.class);
                 }
-                catch (Throwable e)
+                catch (Exception e)
                 {
                     log.log(Level.SEVERE, "An exception happened on a new worker thread", e);
                     numErrors.incrementAndGet();
                 }
+                contextControl.stopContext(RequestScoped.class);
+                contextControl.stopContext(SessionScoped.class);
             }
         };
 

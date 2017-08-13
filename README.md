@@ -2,8 +2,8 @@
 
 * [Documentation](https://deltaspike.apache.org/documentation/)
 * [Mailing Lists](http://deltaspike.apache.org/community.html#Mailinglists)
-* CDI 1.0 Build Status [![CDI 1.0 Build Status](https://builds.apache.org/buildStatus/icon?job=DeltaSpike for CDI 1.0)](https://builds.apache.org/view/A-D/view/DeltaSpike/job/DeltaSpike%20for%20CDI%201.0/)
-* CDI 1.1/1.2 Build Status [![CDI 1.1/1.2 Build Status](https://builds.apache.org/buildStatus/icon?job=DeltaSpike for CDI 1.1 and 1.2)](https://builds.apache.org/view/A-D/view/DeltaSpike/job/DeltaSpike%20for%20CDI%201.1%20and%201.2/)
+* CDI 1.0 Build Status [![CDI 1.0 Build Status](https://builds.apache.org/buildStatus/icon?job=DeltaSpike%20for%20CDI%201.0)](https://builds.apache.org/view/A-D/view/DeltaSpike/job/DeltaSpike%20for%20CDI%201.0/)
+* CDI 1.1/1.2 Build Status [![CDI 1.1/1.2 Build Status](https://builds.apache.org/buildStatus/icon?job=DeltaSpike%20for%20CDI%201.1%20and%201.2)](https://builds.apache.org/view/A-D/view/DeltaSpike/job/DeltaSpike%20for%20CDI%201.1%20and%201.2/)
 * [Contribution Guide](http://deltaspike.apache.org/source.html)
 * [JIRA](https://issues.apache.org/jira/browse/DELTASPIKE)
 * [Apache 2.0](https://git-wip-us.apache.org/repos/asf?p=deltaspike.git;a=blob;f=LICENSE.txt;hb=HEAD)

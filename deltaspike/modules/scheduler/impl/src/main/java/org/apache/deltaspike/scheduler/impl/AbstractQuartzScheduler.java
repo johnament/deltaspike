@@ -79,7 +79,7 @@ public abstract class AbstractQuartzScheduler<T> implements Scheduler<T>
         {
             Properties properties = new Properties();
             properties.put(StdSchedulerFactory.PROP_SCHED_JOB_FACTORY_CLASS, CdiAwareJobFactory.class.getName());
-
+            properties.put("org.quartz.scheduler.skipUpdateCheck","true");
             try
             {
                 ResourceBundle config = loadCustomQuartzConfig();
